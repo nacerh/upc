@@ -59,7 +59,7 @@ AliAnalysisTaskUpcPhi0::AliAnalysisTaskUpcPhi0()
   	RunNum_T(0), LikeSign_T(0), MassPairPion_T(0), MassPairKaon_T(0), MassPairElectron_T(0), MassPairMuon_T(0), Pt_T(0), Rapidity_T(0), PseudoRapidity_T(0), V0Adecision_T(0), 
   	V0Cdecision_T(0), ADAdecision_T(0), ADCdecision_T(0), UBAfired_T(0), UBCfired_T(0), 
   	VBAfired_T(0), VBCfired_T(0), ZNAenergy_T(0), ZNCenergy_T(0), 
-  	ZPAenergy_T(0), ZPCenergy_T(0), VtxContrib_T(0), SpdVtxContrib_T(0),
+  	ZPAenergy_T(0), ZPCenergy_T(0), ZEM1Energy_T(0), ZEM2Energy_T(0), VtxContrib_T(0), SpdVtxContrib_T(0),
   	VtxChi2_T(0),VtxNDF_T(0), TriggerTOF_T(0), TriggerSPD_T(0),
   	Ntracklets_T(0), Phi_T(0), ChipCut_T(0), GenPart_T(0),
   	RunNum_MC_T(0), Mass_MC_T(0), Pt_MC_T(0), Rapidity_MC_T(0), Phi_MC_T(0), N_MC_T(0),
@@ -71,7 +71,7 @@ AliAnalysisTaskUpcPhi0::AliAnalysisTaskUpcPhi0()
 	TPCclustersN(0),dEdx(0),EtaPhiP(0),EtaPhiN(0), fFOcorr(0), fGoodTracks(0), fTrackChi2(0),
 	fHistdEdxVsP1(0),fHistdEdxVsP2(0),fHistdEdxVsP3(0),fHistdEdxVsP4(0),fHistdEdxVsP5(0),
 	fHistdEdxVsP6(0),fHistdEdxVsP7(0),fHistdEdxVsP8(0),fHistdEdxVsP9(0) , fDeltaPhiRho(0), 
-	fDeltaPhiEe(0), fTPCNcls(50)
+	fDeltaPhiEe(0), fTPCNcls(50), nTrack_T(0), nBBAV0_T(-1), nBBCV0_T(-1), NbPMV0A_T(-1), NbPMV0C_T(-1), ADATime_T(-1), ADCTime_T(-1), NbPMADA_T(-1), NbPMADC_T(-1), nTrig(0)
 {
 //Dummy constructor
 }
@@ -84,7 +84,7 @@ AliAnalysisTaskUpcPhi0::AliAnalysisTaskUpcPhi0(const char *name, Bool_t _isMC)
   	RunNum_T(0), LikeSign_T(0), MassPairPion_T(0), MassPairKaon_T(0), MassPairElectron_T(0), MassPairMuon_T(0), Pt_T(0), Rapidity_T(0), PseudoRapidity_T(0), V0Adecision_T(0), 
   	V0Cdecision_T(0), ADAdecision_T(0), ADCdecision_T(0), UBAfired_T(0), UBCfired_T(0), 
   	VBAfired_T(0), VBCfired_T(0), ZNAenergy_T(0), ZNCenergy_T(0), 
-  	ZPAenergy_T(0), ZPCenergy_T(0),VtxContrib_T(0), SpdVtxContrib_T(0),
+  	ZPAenergy_T(0), ZPCenergy_T(0), ZEM1Energy_T(0), ZEM2Energy_T(0), VtxContrib_T(0), SpdVtxContrib_T(0),
   	VtxChi2_T(0),VtxNDF_T(0), TriggerTOF_T(0), TriggerSPD_T(0),
   	Ntracklets_T(0), Phi_T(0), ChipCut_T(0), GenPart_T(0),
   	RunNum_MC_T(0), Mass_MC_T(0), Pt_MC_T(0), Rapidity_MC_T(0), Phi_MC_T(0), N_MC_T(0),
@@ -96,7 +96,7 @@ AliAnalysisTaskUpcPhi0::AliAnalysisTaskUpcPhi0(const char *name, Bool_t _isMC)
 	TPCclustersN(0),dEdx(0),EtaPhiP(0),EtaPhiN(0), fFOcorr(0), fGoodTracks(0), fTrackChi2(0),
 	fHistdEdxVsP1(0),fHistdEdxVsP2(0),fHistdEdxVsP3(0),fHistdEdxVsP4(0),fHistdEdxVsP5(0),
 	fHistdEdxVsP6(0),fHistdEdxVsP7(0),fHistdEdxVsP8(0),fHistdEdxVsP9(0), fDeltaPhiRho(0), 
-	fDeltaPhiEe(0), fTPCNcls(50)
+	fDeltaPhiEe(0), fTPCNcls(50), nTrack_T(0), nBBAV0_T(-1), nBBCV0_T(-1), NbPMV0A_T(-1), NbPMV0C_T(-1), ADATime_T(-1), ADCTime_T(-1), NbPMADA_T(-1), NbPMADC_T(-1), nTrig(0)
 {
   if(debugMode) std::cout<<"Initialization..."<<std::endl;
   Init();
@@ -128,11 +128,18 @@ AliAnalysisTaskUpcPhi0::~AliAnalysisTaskUpcPhi0()
 void AliAnalysisTaskUpcPhi0::Init()
 {
 	for (Int_t i=0;i<Maxtrk;i++){
+		TPCsignal_T[i] = -999;
 		PIDTPCPion_T[i] = -999;
 		PIDTPCKaon_T[i] = -999;
 		PIDTPCElectron_T[i] = -999;
 		PIDTPCMuon_T[i] = -999;
-		TPCsignal_T[i] = -999;
+		ITSsignal_T[i] = -999;
+		PIDITSPion_T[i] = -999;
+		PIDITSKaon_T[i] = -999;
+		PIDITSElectron_T[i] = -999;
+		PIDITSMuon_T[i] = -999;
+		TrackQ_T[i] = -999;
+		PIDTrack_T[i] = -999;
 		TrackP_T[i] = -999;
 		TrackPt_T[i] = -999;
 		TrackEta_T[i] = -999;
@@ -142,6 +149,7 @@ void AliAnalysisTaskUpcPhi0::Init()
 		TPCNcls_T[i] = -999;
 		ITSNcls_T[i] = -999;
 		TPCchi2_T[i] = -999;
+		ITSchi2_T[i] = -999;
 		ITSSA_T[i] = -999;
 		dca_0_T[i] = -999;
 		dca_1_T[i] = -999;
@@ -160,6 +168,14 @@ void AliAnalysisTaskUpcPhi0::Init()
 		ZDCAtime_T[i] = -999;
 		ZDCCtime_T[i] = -999;
 	}
+
+	nTrig = 0;
+	for (Int_t i = 0; i < 177; ++i) 
+	{
+		Lets_Theta_T[i] = -999;
+		Lets_Phi_T[i] = -999;
+		TrigPara_T[i] = -999;
+  	}
 }
 
 void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects() 
@@ -175,6 +191,7 @@ void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects()
   	if(debugMode) std::cout<<"Defining ttree..."<<std::endl;
 	fTree = new TTree("Selected","Selected Pair Track events");
 	//define branches
+	fTree->Branch("nTrack_T",&nTrack_T,"nTrack_T/I");
 	fTree->Branch("RunNum_T",&RunNum_T,"RunNum_T/I");
 	fTree->Branch("PeriodNumber_T",&PeriodNumber_T,"PeriodNumber_T/i");
 	fTree->Branch("OrbitNumber_T",&OrbitNumber_T,"OrbitNumber_T/i");
@@ -192,6 +209,8 @@ void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects()
 	fTree->Branch("ZNCenergy_T",&ZNCenergy_T,"ZNCenergy_T/F");
 	fTree->Branch("ZPAenergy_T",&ZPAenergy_T,"ZPAenergy_T/F");
 	fTree->Branch("ZPCenergy_T",&ZPCenergy_T,"ZPCenergy_T/F");
+	fTree->Branch("ZEM1Energy_T",&ZEM1Energy_T,"ZEM1Energy_T/F");
+	fTree->Branch("ZEM2Energy_T",&ZEM2Energy_T,"ZEM2Energy_T/F");
 	fTree->Branch("ZDCAtime_T",&ZDCAtime_T,"ZDCAtime_T[4]/F");
 	fTree->Branch("ZDCCtime_T",&ZDCCtime_T,"ZDCCtime_T[4]/F");
 	fTree->Branch("VtxX_T",&Vertex_T[0],"VtxX_T/F");
@@ -217,11 +236,18 @@ void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects()
 	fTree->Branch("TriggerSPD_T",&TriggerSPD_T,"TriggerSPD_T/O");
 	fTree->Branch("TriggerTOF_T",&TriggerTOF_T,"TriggerTOF_T/O");
 	// fTree->Branch("ITSModule_T",&ITSModule_T,"ITSModule_T/I");
+	fTree->Branch("TPCsignal_T",&TPCsignal_T,"TPCsignal_T[7]/I");
 	fTree->Branch("PIDTPCPion_T",&PIDTPCPion_T,"PIDTPCPion_T[7]/F");
 	fTree->Branch("PIDTPCKaon_T",&PIDTPCKaon_T,"PIDTPCKaon_T[7]/F");
 	fTree->Branch("PIDTPCElectron_T",&PIDTPCElectron_T,"PIDTPCElectron_T[7]/F");
 	fTree->Branch("PIDTPCMuon_T",&PIDTPCMuon_T,"PIDTPCMuon_T[7]/F");
-	fTree->Branch("TPCsignal_T",&TPCsignal_T,"TPCsignal_T[7]/I");
+	fTree->Branch("ITSsignal_T",&ITSsignal_T,"ITSsignal_T[7]/I");
+	fTree->Branch("PIDITSPion_T",&PIDITSPion_T,"PIDITSPion_T[7]/F");
+	fTree->Branch("PIDITSKaon_T",&PIDITSKaon_T,"PIDITSKaon_T[7]/F");
+	fTree->Branch("PIDITSElectron_T",&PIDITSElectron_T,"PIDITSElectron_T[7]/F");
+	fTree->Branch("PIDITSMuon_T",&PIDITSMuon_T,"PIDITSMuon_T[7]/F");
+	fTree->Branch("TrackQ_T",&TrackQ_T,"TrackQ_T[7]/I");
+	fTree->Branch("PIDTrack_T",&PIDTrack_T,"PIDTrack_T[7]/I");
 	fTree->Branch("TrackP_T",&TrackP_T,"TrackP_T[7]/F");
 	fTree->Branch("TrackEta_T",&TrackEta_T,"TrackEta_T[7]/F");
 	fTree->Branch("TrackPhi_T",&TrackPhi_T,"TrackPhi_T[7]/F");
@@ -229,6 +255,8 @@ void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects()
 	fTree->Branch("TrackPy_T",&TrackPy_T,"TrackPy_T[7]/F");
 	fTree->Branch("TrackPz_T",&TrackPz_T,"TrackPz_T[7]/F");
 	fTree->Branch("TrackPt_T",&TrackPt_T,"TrackPt_T[7]/F");
+	fTree->Branch("TPCchi2_T",&TPCchi2_T,"TPCchi2_T[7]/F");
+	fTree->Branch("ITSchi2_T",&ITSchi2_T,"ITSchi2_T[7]/F");
 	fTree->Branch("TPCrefit_T",&TPCrefit_T,"TPCrefit_T[7]/O");
 	fTree->Branch("ITSrefit_T",&ITSrefit_T,"ITSrefit_T[7]/O");
 	fTree->Branch("TPCNcls_T",&TPCNcls_T,"TPCNcls_T[7]/I");
@@ -237,6 +265,18 @@ void AliAnalysisTaskUpcPhi0::UserCreateOutputObjects()
 	fTree->Branch("dca_1_T",&dca_1_T,"dca_1_T[7]/F");
 	fTree->Branch("HasPointOnITSLayer_0_T",&HasPointOnITSLayer_0_T,"HasPointOnITSLayer_0_T[7]/O");
 	fTree->Branch("HasPointOnITSLayer_1_T",&HasPointOnITSLayer_1_T,"HasPointOnITSLayer_1_T[7]/O");
+	fTree->Branch("ITSSA_T",&ITSSA_T,"ITSSA_T[7]/O");
+	fTree->Branch("Lets_Theta_T",&Lets_Theta_T,"Lets_Theta_T[177]/F");
+	fTree->Branch("Lets_Phi_T",&Lets_Phi_T,"Lets_Phi_T[177]/F");
+	fTree->Branch("TrigPara_T",&TrigPara_T,"TrigPara_T[177]/I");
+	fTree->Branch("nBBAV0_T",&nBBAV0_T,"nBBAV0_T/F");
+	fTree->Branch("nBBCV0_T",&nBBCV0_T,"nBBCV0_T/F");
+	fTree->Branch("NbPMV0A_T",&NbPMV0A_T,"NbPMV0A_T/F");
+	fTree->Branch("NbPMV0C_T",&NbPMV0C_T,"NbPMV0C_T/F");
+	fTree->Branch("ADATime_T",&ADATime_T,"ADATime_T/F");
+	fTree->Branch("ADCTime_T",&ADCTime_T,"ADCTime_T/F");
+	fTree->Branch("NbPMADA_T",&NbPMADA_T,"NbPMADA_T/F");
+	fTree->Branch("NbPMADC_T",&NbPMADC_T,"NbPMADC_T/F");
 
 	if(debugMode) std::cout<<"Defining MC ttree..."<<std::endl;
 	// MC tree
@@ -420,13 +460,49 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 
   AliESDVertex *fESDVertex = (AliESDVertex*) esd->GetPrimaryVertex();
 
+  // initialize the values for every event entry
+
   Int_t nGoodTracks=0;
+  nTrack_T = 0;
   //initialize the indices of good tracks
   Int_t TrackIndex[Maxtrk] = {0};
-  for (Int_t j=0; j < Maxtrk; j++)
+
+  for (Int_t i=0;i<Maxtrk;i++)
   {
-	TrackIndex[j]=-1;
+	TrackIndex[i] = -999;
+	TPCsignal_T[i] = -999;
+	PIDTPCPion_T[i] = -999;
+	PIDTPCKaon_T[i] = -999;
+	PIDTPCElectron_T[i] = -999;
+	PIDTPCMuon_T[i] = -999;
+	ITSsignal_T[i] = -999;
+	PIDITSPion_T[i] = -999;
+	PIDITSKaon_T[i] = -999;
+	PIDITSElectron_T[i] = -999;
+	PIDITSMuon_T[i] = -999;
+	TrackQ_T[i] = -999;
+	PIDTrack_T[i] = -999;
+	TrackP_T[i] = -999;
+	TrackPt_T[i] = -999;
+	TrackEta_T[i] = -999;
+	TrackPhi_T[i] = -999;
+	TPCrefit_T[i] = -999;
+	ITSrefit_T[i] = -999;
+	TPCNcls_T[i] = -999;
+	ITSNcls_T[i] = -999;
+	TPCchi2_T[i] = -999;
+	ITSchi2_T[i] = -999;
+	ITSSA_T[i] = -999;
+	dca_0_T[i] = -999;
+	dca_1_T[i] = -999;
+	HasPointOnITSLayer_0_T[i] = -999;
+	HasPointOnITSLayer_1_T[i] = -999;
+	TrackPx_T[i] = -999;
+	TrackPy_T[i] = -999;
+	TrackPz_T[i] = -999;
+	TrackPt_T[i] = -999;
   }
+
   if(debugMode)std::cout<<"starting track loop"<<std::endl;
   //Track loop - cuts
   for(Int_t itr=0; itr<esd ->GetNumberOfTracks(); itr++) {
@@ -452,30 +528,33 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
     // Double_t cut_DCAxy = (0.0182 + 0.0350/TMath::Power(trk->Pt(),1.01));
     // if(TMath::Abs(dca[0]) > cut_DCAxy) continue;
 
-	// store good track index
-	TrackIndex[nGoodTracks] = itr;
-
 	// fill variables for good tracks
-	TPCrefit_T[nGoodTracks] = trk->GetStatus() & AliESDtrack::kTPCrefit; // TPC refitted tracks
-	ITSrefit_T[nGoodTracks] = trk->GetStatus() & AliESDtrack::kITSrefit; // ITS refitted tracks
+	TPCrefit_T[nGoodTracks] = (trk->GetStatus() & AliESDtrack::kTPCrefit); // TPC refitted tracks
+	ITSrefit_T[nGoodTracks] = (trk->GetStatus() & AliESDtrack::kITSrefit); // ITS refitted tracks
 	TPCNcls_T[nGoodTracks] = trk->GetNumberOfTPCClusters(); // Get Number of TPC Clusters
 	ITSNcls_T[nGoodTracks] = trk->GetNumberOfITSClusters(); // Get Number of ITS Clusters
 	TPCchi2_T[nGoodTracks] = trk->GetTPCchi2(); // Get chi2 of TPC fit
+	ITSchi2_T[nGoodTracks] = trk->GetITSchi2(); // Get chi2 of ITS fit
 	ITSSA_T[nGoodTracks] = trk->IsPureITSStandalone(); // ITS stand alone tracks
 	dca_0_T[nGoodTracks] = dca[0]; // Get distance closeset aproach in transverse plane
 	dca_1_T[nGoodTracks] = dca[1]; // Get distance closeset aproach in logitudinal plane
 	HasPointOnITSLayer_0_T[nGoodTracks] = trk->HasPointOnITSLayer(0); // test if points on ITS layer 0 (map of clusters, one bit per a layer)
 	HasPointOnITSLayer_1_T[nGoodTracks] = trk->HasPointOnITSLayer(1); // test if points on ITS layer 1
 
+	// store good track index
+	TrackIndex[nGoodTracks] = itr;
     nGoodTracks++;
-    // std::cout<<nGoodTracks<<" good tracks"<<endl;
-	if(nGoodTracks > Maxtrk) break; // just to know how many nGoodTrack are there
+	nTrack_T++;
+
+	// std::cout<<"*** nGoodTracks = "<<nGoodTracks<<" | TPCrefit_T["<<itr<<"] = "<<TPCrefit_T[itr]<<" | dca_0_T = "<<dca_0_T[itr]<<std::endl;
+
+	if(nGoodTracks >= Maxtrk) break; // just to know how many nGoodTrack are there
 
   }//Track loop end
 
   	fGoodTracks->Fill(nGoodTracks);
 
-  if(nGoodTracks > 1 && nGoodTracks < Maxtrk){ // fill tree variables
+  if(nGoodTracks > 1 && nGoodTracks <= Maxtrk){ // fill tree variables for events with 2 - 7 good tracks
 	if(debugMode)std::cout<<"two good tracks"<<std::endl;
   	TDatabasePDG *pdgdat = TDatabasePDG::Instance(); 
   	TParticlePDG *partPion = pdgdat->GetParticle(211); // pion
@@ -514,6 +593,22 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 
 	// VZERO, ZDC, AD
 	AliESDVZERO *fV0data = esd->GetVZEROData();
+
+	int nbba = 0, nbbc = 0;
+  	if(fV0data) 
+  	{
+		for(Int_t iv0=0; iv0<64; iv0++) 
+		{
+			if(fV0data->GetBBFlag(iv0) == 1 && iv0 < 32 ) nbbc++;
+      		if(fV0data->GetBBFlag(iv0) == 1 && iv0 > 31 ) nbba++;
+    	}
+
+    	nBBAV0_T = nbba;
+    	nBBCV0_T = nbbc;
+    	NbPMV0A_T = fV0data->GetNbPMV0A();
+    	NbPMV0C_T = fV0data->GetNbPMV0C();
+  	}
+
 	AliESDZDC *fZDCdata = esd->GetESDZDC();
 	AliESDAD *fADdata = esd->GetADData();
 	  
@@ -522,6 +617,11 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 	if(fADdata){
 		ADAdecision_T = fADdata->GetADADecision();
 		ADCdecision_T = fADdata->GetADCDecision();
+		ADATime_T = fADdata->GetADATime(); 
+    	ADCTime_T = fADdata->GetADCTime();
+    	NbPMADA_T = fADdata->GetNbPMADA();
+    	NbPMADC_T = fADdata->GetNbPMADC();
+
 	}
 
 	UBAfired_T = esd->GetHeader()->IsTriggerInputFired("0UBA");
@@ -534,6 +634,8 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 	ZNCenergy_T = fZDCdata->GetZNCTowerEnergy()[0];
 	ZPAenergy_T = fZDCdata->GetZPATowerEnergy()[0];
 	ZPCenergy_T = fZDCdata->GetZPCTowerEnergy()[0];
+	ZEM1Energy_T = fZDCdata->GetZEM1Energy();
+    ZEM2Energy_T = fZDCdata->GetZEM2Energy();
 
 	// neutron ZDC time
 	Int_t detChZNA  = fZDCdata->GetZNATDCChannel();
@@ -560,12 +662,38 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 	SpdVertex_T[2] = fSPDVertex->GetZ();
 
 	// Tracklets
+
+	const AliVMultiplicity* mult = esd->GetMultiplicity();
+  	if(mult)
+	{
+		for (Int_t i=0; i<1200; ++i)
+		{
+      		if( nTrig > 176 ) continue;
+
+      		if (mult->TestFiredChipMap(i))
+			{
+				TrigPara_T[nTrig] = -i;
+        		if( mult->TestFastOrFiredChips(i) ) TrigPara_T[nTrig] = i;
+	    		nTrig++;
+			}
+    	}
+  	}
+
 	Ntracklets_T = esd->GetMultiplicity()->GetNumberOfTracklets();
+
+	for (Int_t i = 0; i < Ntracklets_T; ++i) 
+	{
+		if( i > 176 ) continue;
+		Lets_Theta_T[i] = esd->GetMultiplicity()->GetTheta(i);
+		Lets_Phi_T[i] = esd->GetMultiplicity()->GetPhi(i);
+  	}
 
 	Double_t PhiPlus = 0;
 	// loop over good tracks
   	for(Int_t i=0; i<nGoodTracks; i++){
 	  	AliESDtrack *trk = esd->GetTrack(TrackIndex[i]);
+
+		// std::cout<<"*** nGoodTracks--2 = "<<nGoodTracks<<" | TPCrefit_T--2["<<TrackIndex[i]<<"] = "<<TPCrefit_T[TrackIndex[i]]<<" | dca_0_T--2 = "<<dca_0_T[TrackIndex[i]]<<std::endl;
 
 		ITSModuleInner_T[i] = trk->GetITSModuleIndex(0)/1000000;
 		ITSModuleOuter_T[i] = trk->GetITSModuleIndex(1)/1000000;
@@ -579,12 +707,19 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 		PIDTPCKaon_T[i] = fPIDResponse->NumberOfSigmasTPC(trk,AliPID::kKaon);
 		PIDTPCMuon_T[i] = fPIDResponse->NumberOfSigmasTPC(trk,AliPID::kMuon);
 
+		// ITS PID n-sigma
+		PIDITSElectron_T[i] = fPIDResponse->NumberOfSigmasITS(trk,AliPID::kElectron);
+		PIDITSPion_T[i] = fPIDResponse->NumberOfSigmasITS(trk,AliPID::kPion);
+		PIDITSKaon_T[i] = fPIDResponse->NumberOfSigmasITS(trk,AliPID::kKaon);
+		PIDITSMuon_T[i] = fPIDResponse->NumberOfSigmasITS(trk,AliPID::kMuon);
+
 		// separated PID
 		Double_t ptrackTPC=-999.;
 		const AliExternalTrackParam* ippar=trk->GetInnerParam();
 		if(ippar) ptrackTPC=ippar->P();
 		Double_t dedx=trk->GetTPCsignal();
-		Int_t  pidtr=trk->GetPIDForTracking();
+		Int_t pidtr=trk->GetPIDForTracking();
+		PIDTrack_T[i]=trk->GetPIDForTracking();
 		if(pidtr==0) fHistdEdxVsP1->Fill(ptrackTPC,dedx);
 		if(pidtr==1) fHistdEdxVsP2->Fill(ptrackTPC,dedx);
 		if(pidtr==2) fHistdEdxVsP3->Fill(ptrackTPC,dedx);
@@ -596,7 +731,9 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 		if(pidtr==8) fHistdEdxVsP9->Fill(ptrackTPC,dedx);
 
 		charge[i] = trk->Charge();
+		TrackQ_T[i] = trk->Charge();
 		TPCsignal_T[i] = trk->GetTPCsignal();
+		ITSsignal_T[i] = trk->GetITSsignal();
 		TrackP_T[i] = trk->P();
 		TrackPhi_T[i] = trk->Phi();
 		TrackEta_T[i] = trk->Eta();
@@ -634,57 +771,61 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
 
   	} // end loop over good tracks
 
-  	lvPionSum = lvPion[0]+lvPion[1];
-  	lvKaonSum = lvKaon[0]+lvKaon[1];
-  	lvElectronSum = lvElectron[0]+lvElectron[1];
-  	lvMuonSum = lvMuon[0]+lvMuon[1];
+	// 4-vectors sum for events with only 2 good tracks
+	if(nGoodTracks == 2)
+	{
+		lvPionSum = lvPion[0]+lvPion[1];
+  		lvKaonSum = lvKaon[0]+lvKaon[1];
+  		lvElectronSum = lvElectron[0]+lvElectron[1];
+  		lvMuonSum = lvMuon[0]+lvMuon[1];
 
-	if (charge[0]*charge[1]>0) LikeSign_T = 1;
-	else LikeSign_T = 0;
-	MassPairPion_T = lvPionSum.M();
-	MassPairKaon_T = lvKaonSum.M();
-	MassPairElectron_T = lvElectronSum.M();
-	MassPairMuon_T = lvMuonSum.M();
-	Pt_T = lvKaonSum.Pt();
-	Rapidity_T = lvKaonSum.Rapidity();
-	PseudoRapidity_T = lvKaonSum.PseudoRapidity();
-	Phi_T = lvKaonSum.Phi();
+		if (charge[0]*charge[1]>0) LikeSign_T = 1;
+		else LikeSign_T = 0;
+		MassPairPion_T = lvPionSum.M();
+		MassPairKaon_T = lvKaonSum.M();
+		MassPairElectron_T = lvElectronSum.M();
+		MassPairMuon_T = lvMuonSum.M();
+		Pt_T = lvKaonSum.Pt();
+		Rapidity_T = lvKaonSum.Rapidity();
+		PseudoRapidity_T = lvKaonSum.PseudoRapidity();
+		Phi_T = lvKaonSum.Phi();
 
-	// phi test
-	if (!LikeSign_T && fabs(Rapidity_T)<0.8 && Pt_T<0.1 && (pow(PIDTPCPion_T[0],2)+pow(PIDTPCPion_T[1],2)<9) ) fDeltaPhiRho->Fill(Phi_T-PhiPlus);
-	if (!LikeSign_T && fabs(Rapidity_T)<0.8 && Pt_T<0.1 && (pow(PIDTPCElectron_T[0],2)+pow(PIDTPCElectron_T[1],2)<9) ) fDeltaPhiEe->Fill(Phi_T-PhiPlus);
+		// phi test
+		if (!LikeSign_T && fabs(Rapidity_T)<0.8 && Pt_T<0.1 && (pow(PIDTPCPion_T[0],2)+pow(PIDTPCPion_T[1],2)<9) ) fDeltaPhiRho->Fill(Phi_T-PhiPlus);
+		if (!LikeSign_T && fabs(Rapidity_T)<0.8 && Pt_T<0.1 && (pow(PIDTPCElectron_T[0],2)+pow	(PIDTPCElectron_T[1],2)<9) ) fDeltaPhiEe->Fill(Phi_T-PhiPlus);
+	
 
-	// virtual cut on FO chip matching
-	Int_t SPDInner[20]; for (Int_t i=0; i<20; ++i) SPDInner[i]=0;
-	Int_t SPDOuter[40]; for (Int_t i=0; i<40; ++i) SPDOuter[i]=0;
+		// virtual cut on FO chip matching
+		Int_t SPDInner[20]; for (Int_t i=0; i<20; ++i) SPDInner[i]=0;
+		Int_t SPDOuter[40]; for (Int_t i=0; i<40; ++i) SPDOuter[i]=0;
 
-	SPDInner[ITSModuleInner_T[0]/4]++;
-	SPDInner[ITSModuleInner_T[1]/4]++;
-	SPDOuter[(ITSModuleOuter_T[0]-80)/4]++;
-	SPDOuter[(ITSModuleOuter_T[1]-80)/4]++;
-  
-	ChipCut_T = 0;
-	if ((fTriggerName == "CCUP9-B") &&
-		((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
-		||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
-		|| !Is0STPfired(SPDInner,SPDOuter))) ChipCut_T = 1;
-
-	if ((fTriggerName.Contains("CCUP2-B")) &&
-		((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
-		||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
-		)) ChipCut_T = 1;
-	if ((fTriggerName == "CCUP4-B") &&
-		((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
-		||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
-		)) ChipCut_T = 1;
-	if ((fTriggerName == "C1ZED") &&
-		((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
-		||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
-		)) ChipCut_T = 1;
-	if ((fTriggerName == "CCUP11-B") &&
-		((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
-		||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
-		|| !Is0STPfired(SPDInner,SPDOuter))) ChipCut_T = 1;
+		SPDInner[ITSModuleInner_T[0]/4]++;
+		SPDInner[ITSModuleInner_T[1]/4]++;
+		SPDOuter[(ITSModuleOuter_T[0]-80)/4]++;
+		SPDOuter[(ITSModuleOuter_T[1]-80)/4]++;
+	
+		ChipCut_T = 0;
+		if ((fTriggerName == "CCUP9-B") &&
+			((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
+			||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
+			|| !Is0STPfired(SPDInner,SPDOuter))) ChipCut_T = 1;
+		if ((fTriggerName.Contains("CCUP2-B")) &&
+			((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
+			||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
+			)) ChipCut_T = 1;
+		if ((fTriggerName == "CCUP4-B") &&
+			((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
+			||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
+			)) ChipCut_T = 1;
+		if ((fTriggerName == "C1ZED") &&
+			((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
+			||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
+			)) ChipCut_T = 1;
+		if ((fTriggerName == "CCUP11-B") &&
+			((fFOmodules[ITSModuleInner_T[0]] == 0)||(fFOmodules[ITSModuleOuter_T[0]] == 0)
+			||(fFOmodules[ITSModuleInner_T[1]] == 0)||(fFOmodules[ITSModuleOuter_T[1]] == 0)
+			|| !Is0STPfired(SPDInner,SPDOuter))) ChipCut_T = 1;
+	} // end condition of 2 good track events
 
     Int_t fFOcounter = 0;
   	for(Int_t chipkey=0;chipkey<1200;chipkey++){
@@ -699,7 +840,7 @@ void AliAnalysisTaskUpcPhi0::UserExec(Option_t *)
   //fill
   fTree ->Fill();
 
-  } // end 2 good tracks
+  } // end good tracks
   if(debugMode) std::cout<<"saving data"<<std::endl;
   PostData(1, fTree);
   PostData(2, fListHist);
